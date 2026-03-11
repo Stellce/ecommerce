@@ -1,0 +1,31 @@
+Table Users {
+  id integer [primary key]
+  email varchar [unique]
+  password varchar
+  role enum
+  created_at timestamp
+}
+
+Table Products {
+  id integer [primary key]
+  name varchar
+  description varchar
+  price decimal
+  stock integer
+}
+
+Table Orders {
+  id integer [primary key]
+  user_id integer [ref: > Users.id]
+  status enum
+  total_price decimal
+  created_at timestamp
+}
+
+Table OrderItem {
+  id integer [primary key]
+  order_id integer [ref: > Orders.id]
+  product_id integer [ref: > Products.id]
+  quantity integer
+  price_at_purchase decimal
+}
