@@ -7,17 +7,39 @@
     - controller - register/login
     - service - business logic auth
     - repository - repos for User
-    - dto - RegisterRequest, LoginRequest, AuthResponse
-    - entity - User
+    - dto 
+      - request
+        - RegisterRequest
+        - LoginRequest
+        - RefreshTokenRequest
+      - response
+        - AuthResponse
+    - entity 
+      - User
   - product
     - controller - CRUD products
     - service
     - repository
-    - dto - ProductCreateRequest, ProductResponse
-    - entity - Product
+    - dto 
+      - request
+        - ProductCreateRequest
+        - ProductUpdateRequest
+      - response
+        - ProductResponse
+        - PagedProductResponse
+    - entity 
+      - Product
   - order
     - controller - CRUD order
     - service
     - repository
-    - dto - OrderCreateRequest, OrderResponse
-    - entity - Order, OrderItem
+    - dto 
+      - request
+        - OrderCreateRequest
+        - OrderStatusUpdateRequest
+      - response
+        - OrderResponse
+        - PagedOrderResponse
+    - entity 
+      - Order
+      - OrderItem
