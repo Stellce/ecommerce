@@ -1,31 +1,43 @@
-Table Users {
+Table users {
   id integer [primary key]
-  email varchar [unique]
-  password varchar
-  role enum
-  created_at timestamp
+  email varchar [unique, not null]
+  password varchar [not null]
+  role role [not null]
+  created_at timestamptz [not null, default: `now()`]
 }
 
-Table Products {
+Table products {
   id integer [primary key]
-  name varchar
-  description varchar
-  price decimal
-  stock integer
+  name varchar [not null]
+  description varchar [not null]
+  price decimal(10,2) [not null]
+  stock integer [not null]
 }
 
-Table Orders {
+Table orders {
   id integer [primary key]
-  user_id integer [ref: > Users.id]
-  status enum
-  total_price decimal
-  created_at timestamp
+  user_id integer [ref: > users.id, not null]
+  status order_status [not null]
+  total_price decimal(10,2) [not null]
+  created_at timestamptz [not null, default: `now()`]
 }
 
-Table OrderItem {
+Table order_item {
   id integer [primary key]
-  order_id integer [ref: > Orders.id]
-  product_id integer [ref: > Products.id]
-  quantity integer
-  price_at_purchase decimal
+  order_id integer [ref: > orders.id, not null]
+  product_id integer [ref: > products.id, not null]
+  quantity integer [not null]
+  price_at_purchase decimal(10,2) [not null]
+}
+
+Enum role {
+    USER
+    ADMIN
+}
+
+Enum order_status {
+    CREATED
+    PAID
+    SHIPPED
+    CANCELLED
 }
