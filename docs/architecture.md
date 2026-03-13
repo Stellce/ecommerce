@@ -26,7 +26,6 @@
         - ProductUpdateRequest
       - response
         - ProductResponse
-        - PagedProductResponse
     - entity 
       - Product
   - order
@@ -39,7 +38,6 @@
         - OrderStatusUpdateRequest
       - response
         - OrderResponse
-        - PagedOrderResponse
     - entity 
       - Order
       - OrderItem
