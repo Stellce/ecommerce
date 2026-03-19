@@ -1,3 +1,14 @@
 spring:
   application:
     name: backend
+  datasource:
+    url: jdbc:postgresql://localhost:5432/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+  flyway:
+    locations: "classpath:db/migration"
+    baseline-on-migrate: true
+    fail-on-missing-locations: true
+logging:
+  level:
+    org.flywaydb.core: DEBUG
