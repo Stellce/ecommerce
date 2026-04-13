@@ -1,6 +1,6 @@
 package com.example.backend.security;
 
-import com.example.backend.auth.Role;
+import com.example.backend.user.Role;
 import com.example.backend.user.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
