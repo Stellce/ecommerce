@@ -6,6 +6,8 @@ import com.example.backend.auth.dto.request.RegisterRequest;
 import com.example.backend.auth.dto.response.AuthResponse;
 import com.example.backend.common.exception.*;
 import com.example.backend.security.JwtService;
+import com.example.backend.user.Role;
+import com.example.backend.user.RoleRepository;
 import com.example.backend.user.User;
 import com.example.backend.user.UserRepository;
 import jakarta.transaction.Transactional;

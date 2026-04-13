@@ -1,6 +1,5 @@
 package com.example.backend.user;
 
-import com.example.backend.auth.Role;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
