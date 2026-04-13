@@ -6,7 +6,6 @@
   - auth
     - controller - register/login
     - service - business logic auth
-    - repository - repos for User
     - dto 
       - request
         - RegisterRequest
@@ -14,7 +13,11 @@
         - RefreshTokenRequest
       - response
         - AuthResponse
-    - entity 
+    - entity
+      - RefreshToken
+  - user
+    - repository
+    - entity
       - User
   - product
     - controller - CRUD products
