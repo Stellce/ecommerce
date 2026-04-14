@@ -4,7 +4,8 @@ import com.example.backend.auth.dto.request.LoginRequest;
 import com.example.backend.auth.dto.request.RefreshTokenRequest;
 import com.example.backend.auth.dto.request.RegisterRequest;
 import com.example.backend.auth.dto.response.AuthResponse;
-import com.example.backend.common.exception.*;
+import com.example.backend.common.exception.AppException;
+import com.example.backend.common.exception.ErrorCode;
 import com.example.backend.security.JwtService;
 import com.example.backend.user.Role;
 import com.example.backend.user.RoleRepository;
@@ -32,12 +33,12 @@ public class AuthService {
     @Transactional
     public AuthResponse register(RegisterRequest registerRequest) {
         if (userRepository.existsByEmail(registerRequest.email())) {
-            throw new EmailAlreadyExistsException();
+            throw new AppException(ErrorCode.USER_ALREADY_EXISTS);
         }
 
         String hashedPassword = bCryptPasswordEncoder.encode(registerRequest.password());
         Role role = roleRepository.findByName("USER")
-                .orElseThrow(RoleNotFoundException::new);
+                .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
 
         User user = new User(registerRequest.email(), hashedPassword, Set.of(role));
         userRepository.save(user);
@@ -52,10 +53,10 @@ public class AuthService {
     @Transactional
     public AuthResponse login(LoginRequest loginRequest) {
         User user = userRepository.findByEmail(loginRequest.email())
-                .orElseThrow(EmailNotExistsException::new);
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         if (!bCryptPasswordEncoder.matches(loginRequest.password(), user.getPassword())) {
-            throw new InvalidCredentialException();
+            throw new AppException(ErrorCode.INVALID_CREDENTIALS);
         }
         String jwt = jwtService.generateToken(user);
 
@@ -68,10 +69,10 @@ public class AuthService {
     public AuthResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {
 
         RefreshToken oldRefreshToken = refreshTokenRepository.findByToken(refreshTokenRequest.refreshToken())
-                .orElseThrow(InvalidTokenException::new);
+                .orElseThrow(() -> new AppException(ErrorCode.UNAUTHORIZED));
 
         if (oldRefreshToken.isRevoked() || oldRefreshToken.getExpiresAt().isBefore(OffsetDateTime.now(ZoneOffset.UTC))) {
-            throw new InvalidTokenException();
+            throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
         oldRefreshToken.setRevoked(true);

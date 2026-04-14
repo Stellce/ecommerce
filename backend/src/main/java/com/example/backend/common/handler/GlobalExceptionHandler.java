@@ -1,7 +1,7 @@
 package com.example.backend.common.handler;
 
 import com.example.backend.auth.dto.response.ErrorResponse;
-import com.example.backend.common.exception.BaseException;
+import com.example.backend.common.exception.AppException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,18 +16,18 @@ import java.time.Instant;
 public class GlobalExceptionHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    @ExceptionHandler(BaseException.class)
-    public ResponseEntity<ErrorResponse> handleBase(BaseException ex, HttpServletRequest request) {
+    @ExceptionHandler(AppException.class)
+    public ResponseEntity<ErrorResponse> handleBase(AppException ex, HttpServletRequest request) {
         ErrorResponse response = new ErrorResponse(
                 Instant.now().toString(),
-                ex.getStatus().value(),
-                ex.getErrorCode(),
+                ex.getErrorCode().getStatus().value(),
+                ex.getErrorCode().name(),
                 ex.getMessage(),
                 request.getRequestURI()
         );
 
         return ResponseEntity
-                .status(ex.getStatus())
+                .status(ex.getErrorCode().getStatus())
                 .body(response);
     }
 
