@@ -26,7 +26,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-
         String token = bearer.substring(7);
 
         try {
