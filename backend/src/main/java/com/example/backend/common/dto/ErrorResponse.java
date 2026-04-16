@@ -1,4 +1,4 @@
-package com.example.backend.common.exception;
+package com.example.backend.common.dto;
 
 import org.springframework.http.HttpStatus;
 
