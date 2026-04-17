@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor
 public enum ErrorCode {
+    INSUFFICIENT_QUANTITY(HttpStatus.CONFLICT, "Insufficient quantity of the item"),
+    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "Order not found"),
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "Invalid credentials"),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User not found"),
     USER_ALREADY_EXISTS(HttpStatus.CONFLICT, "User already exists"),

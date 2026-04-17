@@ -6,6 +6,9 @@ import com.example.backend.auth.dto.request.RegisterRequest;
 import com.example.backend.auth.dto.response.AuthResponse;
 import com.example.backend.common.exception.AppException;
 import com.example.backend.common.exception.ErrorCode;
+import com.example.backend.order.Order;
+import com.example.backend.order.OrderRepository;
+import com.example.backend.security.CustomUserPrincipal;
 import com.example.backend.security.JwtService;
 import com.example.backend.user.Role;
 import com.example.backend.user.RoleRepository;
@@ -13,6 +16,7 @@ import com.example.backend.user.User;
 import com.example.backend.user.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +30,7 @@ import java.util.UUID;
 public class AuthService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final OrderRepository orderRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtService jwtService;
@@ -85,6 +90,25 @@ public class AuthService {
         refreshTokenRepository.save(refreshToken);
 
         return new AuthResponse(jwt, refreshToken.getToken());
+    }
+
+    public boolean canAccessOrder(UUID orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+        CustomUserPrincipal principal = (CustomUserPrincipal) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
+
+        if (principal == null || principal.getId() == null) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        UUID userId = principal.getId();
+
+        if (!order.getUser().getId().equals(userId)) {
+            throw new AppException(ErrorCode.FORBIDDEN);
+        }
+
+        return true;
     }
 
     private RefreshToken createRefreshToken(User user) {
