@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -42,8 +44,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/products/**").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasAuthority("ADMIN")
 
-                        .requestMatchers(HttpMethod.GET, "/api/orders").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/orders/**").hasAuthority("USER")
                         .requestMatchers(HttpMethod.POST, "/api/orders/**").hasAuthority("USER")
+                        .requestMatchers(HttpMethod.PATCH, "/api/orders/status/**").hasAuthority("ADMIN")
 
                         .anyRequest().authenticated()
                 )
@@ -52,6 +55,13 @@ public class SecurityConfig {
                         .accessDeniedHandler(customAccessDeniedHandler)
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
+    }
+
+    @Bean
+    static RoleHierarchy roleHierarchy() {
+        return RoleHierarchyImpl.withRolePrefix("")
+                .role("ADMIN").implies("USER")
                 .build();
     }
 }
