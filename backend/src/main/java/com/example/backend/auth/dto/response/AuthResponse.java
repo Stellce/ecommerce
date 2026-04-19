@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 
 public record AuthResponse(
-        @JsonProperty("token")
+        @JsonProperty("access_token")
         @NotBlank
         String jwt,
 

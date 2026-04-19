@@ -6,8 +6,8 @@ import com.example.backend.auth.dto.request.RegisterRequest;
 import com.example.backend.auth.dto.response.AuthResponse;
 import com.example.backend.common.exception.AppException;
 import com.example.backend.common.exception.ErrorCode;
-import com.example.backend.order.Order;
 import com.example.backend.order.OrderRepository;
+import com.example.backend.security.CurrentUserService;
 import com.example.backend.security.CustomUserPrincipal;
 import com.example.backend.security.JwtService;
 import com.example.backend.user.Role;
@@ -34,6 +34,7 @@ public class AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtService jwtService;
+    private final CurrentUserService currentUserService;
 
     @Transactional
     public AuthResponse register(RegisterRequest registerRequest) {
@@ -93,22 +94,14 @@ public class AuthService {
     }
 
     public boolean canAccessOrder(UUID orderId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
-        CustomUserPrincipal principal = (CustomUserPrincipal) SecurityContextHolder.getContext()
-                .getAuthentication().getPrincipal();
-
-        if (principal == null || principal.getId() == null) {
-            throw new AppException(ErrorCode.UNAUTHORIZED);
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof CustomUserPrincipal principal)) {
+            return false;
         }
 
-        UUID userId = principal.getId();
+        if (currentUserService.isAdmin()) return true;
 
-        if (!order.getUser().getId().equals(userId)) {
-            throw new AppException(ErrorCode.FORBIDDEN);
-        }
-
-        return true;
+        return orderRepository.existsByIdAndUserId(orderId, principal.getId());
     }
 
     private RefreshToken createRefreshToken(User user) {
