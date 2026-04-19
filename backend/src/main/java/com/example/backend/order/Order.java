@@ -1,5 +1,6 @@
 package com.example.backend.order;
 
+import com.example.backend.order.item.OrderItem;
 import com.example.backend.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -11,6 +12,8 @@ import org.hibernate.annotations.UuidGenerator;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -26,8 +29,11 @@ public class Order {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(referencedColumnName = "id")
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
+
+    @OneToMany(mappedBy = "order")
+    private List<OrderItem> orderItems = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

@@ -13,7 +13,10 @@ import java.math.BigDecimal;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "order_items")
+@Table(
+        name = "order_items",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"order_id", "product_id"})
+)
 public class OrderItem {
 
     @Id
@@ -24,7 +27,7 @@ public class OrderItem {
     @JoinColumn(name = "order_id", referencedColumnName = "id")
     private Order order;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", referencedColumnName = "id")
     private Product product;
 

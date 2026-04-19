@@ -6,5 +6,5 @@ import java.util.List;
 import java.util.UUID;
 
 public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
-    List<OrderItem> findAllByOrderId(UUID id);
+    List<OrderItem> findAllByOrderIdIn(List<UUID> ids);
 }

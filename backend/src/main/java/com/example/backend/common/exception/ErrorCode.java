@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor
 public enum ErrorCode {
+    DUPLICATE_ITEMS(HttpStatus.CONFLICT, "Duplicate items found"),
+    ORDER_CANNOT_BE_CANCELLED(HttpStatus.CONFLICT, "Order cannot be cancelled" ),
     INSUFFICIENT_QUANTITY(HttpStatus.CONFLICT, "Insufficient quantity of the item"),
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "Order not found"),
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "Invalid credentials"),
