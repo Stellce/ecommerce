@@ -3,6 +3,7 @@ package com.example.backend.product;
 import com.example.backend.common.dto.PageResponse;
 import com.example.backend.common.exception.AppException;
 import com.example.backend.common.exception.ErrorCode;
+import com.example.backend.order.item.OrderItemRepository;
 import com.example.backend.product.dto.request.CreateProductRequest;
 import com.example.backend.product.dto.request.PatchProductRequest;
 import com.example.backend.product.dto.response.ProductResponse;
@@ -20,6 +21,7 @@ import java.util.UUID;
 public class ProductService {
     private final ProductRepository productRepository;
     private final ProductMapper mapper;
+    private final OrderItemRepository orderItemRepository;
 
     @Transactional
     public ProductResponse createProduct(CreateProductRequest productRequest){
@@ -65,6 +67,9 @@ public class ProductService {
     public void deleteProduct(UUID id) {
         if(!productRepository.existsById(id)) {
             throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
+        }
+        if(orderItemRepository.existsByProductId(id)) {
+            throw new AppException(ErrorCode.PRODUCT_IN_USE);
         }
 
         productRepository.deleteById(id);
