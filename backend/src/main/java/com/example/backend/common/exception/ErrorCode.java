@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor
 public enum ErrorCode {
+    PRODUCT_IN_USE(HttpStatus.CONFLICT, "Product is referenced by existing orders"),
     DUPLICATE_ITEMS(HttpStatus.CONFLICT, "Duplicate items found"),
     ORDER_CANNOT_BE_CANCELLED(HttpStatus.CONFLICT, "Order cannot be cancelled" ),
     INSUFFICIENT_QUANTITY(HttpStatus.CONFLICT, "Insufficient quantity of the item"),
