@@ -25,6 +25,7 @@ This project demonstrates a REST API with domain boundaries, JWT-based security,
 - **Flyway**
 - **Gradle**
 - **Docker Compose**
+- **Swagger / OpenAPI documentation**
 
 ## Domain overview
 
@@ -231,7 +232,6 @@ A DBML representation is also included for easier schema review.
 ## Future updates
 
 Planned improvements that would strengthen the project further:
-- Swagger / OpenAPI documentation
 - automated tests for controllers and services
 - containerized app runtime for one-command startup
 - CI pipeline for build and test automation
