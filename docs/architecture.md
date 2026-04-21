@@ -1,46 +1,19 @@
 # Architecture
 
-## Packages Structure (feature-based)
+## Style
+Feature-based package structure.
 
-- backend/src/main/java/com/example/backend/
-  - auth
-    - controller - register/login
-    - service - business logic auth
-    - dto 
-      - request
-        - RegisterRequest
-        - LoginRequest
-        - RefreshTokenRequest
-      - response
-        - AuthResponse
-    - entity
-      - RefreshToken
-  - user
-    - repository
-    - entity
-      - User
-  - product
-    - controller - CRUD products
-    - service
-    - repository
-    - dto 
-      - request
-        - ProductCreateRequest
-        - ProductUpdateRequest
-      - response
-        - ProductResponse
-    - entity 
-      - Product
-  - order
-    - controller - CRUD order
-    - service
-    - repository
-    - dto 
-      - request
-        - OrderCreateRequest
-        - OrderStatusUpdateRequest
-      - response
-        - OrderResponse
-    - entity 
-      - Order
-      - OrderItem
+Each feature contains the layers it needs: controller, service, repository, dto, entity.
+
+This keeps business logic isolated by domain and makes the project easier to scale.
+
+## Shared packages
+- config - Spring configuration
+- security - JWT filters, authentication setup
+- common - shared DTOs, exceptions, global handlers, pagination
+
+## Features
+- auth - registration, login, refresh token flow
+- user - user persistence
+- product - product CRUD
+- order - order creation and status management

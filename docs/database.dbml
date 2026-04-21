@@ -1,45 +1,53 @@
 Table users {
-  id uuid [primary key, default: 'uuid7()']
+  id uuid [primary key]
   email varchar [unique, not null]
   password varchar [not null]
-  role role [not null]
   created_at timestamptz [not null, default: `now()`]
+}
+
+Table roles {
+    id bigint [primary key]
+    name varchar [unique, not null]
+}
+
+Table user_roles {
+    user_id uuid [not null, ref: > users.id]
+    role_id bigint [not null, ref: > roles.id]
+    primary key(user_id, role_id)
 }
 
 Table refresh_tokens {
   id bigint [primary key]
-  user_id [not null, ref: = users.id]
-  token varchar [not null]
+  user_id uuid [not null, ref: = users.id]
+  token varchar [unique, not null]
+  created_at timestamptz [default: now(), not null]
   expires_at timestamptz [not null]
+  revoked boolean [default: false, not null]
 }
 
 Table products {
-  id uuid [primary key, default: 'uuid7()']
+  id uuid [primary key]
   name varchar [not null]
   description varchar [not null]
-  price decimal(10,2) [not null]
-  stock integer [not null]
+  price numeric(10,2) [not null]
+  stock integer [not null, check: stock >= 0]
 }
 
 Table orders {
-  id uuid [primary key, default: 'uuid7()']
-  user_id integer [ref: > users.id, not null]
+  id uuid [primary key]
+  user_id uuid [ref: > users.id, not null]
   status order_status [not null]
-  total_price decimal(10,2) [not null]
+  total_price numeric(10,2) [not null]
   created_at timestamptz [not null, default: `now()`]
 }
 
-Table order_item {
-  id uuid [primary key, default: 'uuid7()']
-  order_id integer [ref: > orders.id, not null]
-  product_id integer [ref: > products.id, not null]
+Table order_items {
+  id bigint [primary key]
+  order_id uuid [ref: > orders.id, not null]
+  product_id uuid [ref: > products.id, not null]
   quantity integer [not null]
-  price_at_purchase decimal(10,2) [not null]
-}
-
-Enum role {
-    USER
-    ADMIN
+  price_at_purchase numeric(10,2) [not null]
+  unique(order_id, product_id)
 }
 
 Enum order_status {
