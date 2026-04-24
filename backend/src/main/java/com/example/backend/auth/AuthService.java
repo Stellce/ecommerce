@@ -6,6 +6,7 @@ import com.example.backend.auth.dto.request.RegisterRequest;
 import com.example.backend.auth.dto.response.AuthResponse;
 import com.example.backend.common.exception.AppException;
 import com.example.backend.common.exception.ErrorCode;
+import com.example.backend.config.JwtProperties;
 import com.example.backend.order.OrderRepository;
 import com.example.backend.security.CurrentUserService;
 import com.example.backend.security.CustomUserPrincipal;
@@ -36,6 +37,8 @@ public class AuthService {
     private final JwtService jwtService;
     private final CurrentUserService currentUserService;
 
+    private final JwtProperties jwtProperties;
+
     @Transactional
     public AuthResponse register(RegisterRequest registerRequest) {
         if (userRepository.existsByEmail(registerRequest.email())) {
@@ -59,7 +62,7 @@ public class AuthService {
     @Transactional
     public AuthResponse login(LoginRequest loginRequest) {
         User user = userRepository.findByEmail(loginRequest.email())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.INVALID_CREDENTIALS));
 
         if (!bCryptPasswordEncoder.matches(loginRequest.password(), user.getPassword())) {
             throw new AppException(ErrorCode.INVALID_CREDENTIALS);
@@ -105,6 +108,6 @@ public class AuthService {
     }
 
     private RefreshToken createRefreshToken(User user) {
-        return new RefreshToken(user, UUID.randomUUID().toString().replace("-", ""), OffsetDateTime.now(ZoneOffset.UTC).plusDays(10));
+        return new RefreshToken(user, UUID.randomUUID().toString().replace("-", ""), OffsetDateTime.now(ZoneOffset.UTC).plus(jwtProperties.refreshExpiration()));
     }
 }

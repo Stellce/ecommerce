@@ -15,6 +15,8 @@ app:
     password: ${BOOTSTRAP_ADMIN_PASSWORD}
 jwt:
   secret: ${JWT_SECRET}
+  access_expiration: ${JWT_ACCESS_EXPIRATION}
+  refresh_expiration: ${JWT_REFRESH_EXPIRATION}
 logging:
   level:
     org.flywaydb.core: DEBUG
