@@ -1,12 +1,13 @@
 package com.example.backend.security;
 
+import com.example.backend.config.JwtProperties;
 import com.example.backend.user.Role;
 import com.example.backend.user.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -15,17 +16,16 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
+@RequiredArgsConstructor
 @Service
 public class JwtService {
 
-    @Value("${jwt.secret}")
-    private String secret;
+    private final JwtProperties jwtProperties;
 
     public String generateToken(User user) {
         return Jwts.builder()
@@ -35,7 +35,7 @@ public class JwtService {
                         .map(Role::getName)
                         .toList())
                 .issuedAt(Date.from(Instant.now()))
-                .expiration(Date.from(Instant.now().plus(10, ChronoUnit.MINUTES)))
+                .expiration(Date.from(Instant.now().plus(jwtProperties.accessExpiration())))
                 .signWith(getKey())
                 .compact();
     }
@@ -69,6 +69,6 @@ public class JwtService {
     }
 
     private SecretKey getKey() {
-            return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+            return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtProperties.secret()));
         }
 }
