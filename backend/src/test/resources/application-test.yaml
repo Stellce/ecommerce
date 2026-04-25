@@ -1,0 +1,12 @@
+jwt:
+  secret: "AIFJOEIJFCW_FP)MU)093ru90wru09wurWUR#M)WPCU#R)W#_R"
+  access_expiration: "10m"
+  refresh_expiration: "7d"
+app:
+  bootstrap-admin:
+    email: test@test.com
+    password: test
+logging:
+  level:
+    com.zaxxer.hikari: DEBUG
+    org.flywaydb.core: DEBUG
