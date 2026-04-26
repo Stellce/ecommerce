@@ -1,5 +1,5 @@
 jwt:
-  secret: "AIFJOEIJFCW_FP)MU)093ru90wru09wurWUR#M)WPCU#R)W#_R"
+  secret: "f578f3e175bb6395d1e9e0c9b72fc57067139c15beecb1f85d8c2307b05a1185"
   access_expiration: "10m"
   refresh_expiration: "7d"
 app:
@@ -8,5 +8,5 @@ app:
     password: test
 logging:
   level:
-    com.zaxxer.hikari: DEBUG
-    org.flywaydb.core: DEBUG
+    com.zaxxer.hikari: WARN
+    org.flywaydb.core: WARN

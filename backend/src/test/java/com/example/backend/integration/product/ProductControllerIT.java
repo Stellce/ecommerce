@@ -6,30 +6,27 @@ import com.example.backend.product.ProductRepository;
 import com.example.backend.product.dto.request.CreateProductRequest;
 import com.example.backend.product.dto.request.PatchProductRequest;
 import com.example.backend.product.dto.response.ProductResponse;
+import com.example.backend.testsupport.ProductApiTestClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.UserRequestPostProcessor;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import static com.example.backend.testsupport.ProductTestData.validCreateProductRequest;
+import static com.example.backend.testsupport.SecurityTestUtils.adminUser;
+import static com.example.backend.testsupport.SecurityTestUtils.regularUser;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ActiveProfiles("test")
-@SpringBootTest
 public class ProductControllerIT extends AbstractIntegrationTest {
 
     @Autowired
@@ -41,9 +38,11 @@ public class ProductControllerIT extends AbstractIntegrationTest {
     @Autowired
     private ProductRepository productRepository;
 
+    private ProductApiTestClient productApi;
+
     @BeforeEach
-    void cleanUp() {
-        productRepository.deleteAll();
+    void setUp() {
+        productApi = new ProductApiTestClient(mockMvc, objectMapper);
     }
 
     @Test
@@ -54,10 +53,9 @@ public class ProductControllerIT extends AbstractIntegrationTest {
                 new BigDecimal("10.99"),
                 5
         );
-        ProductResponse response = createProduct(request);
+        ProductResponse response = productApi.createProduct(request);
 
         assertNotNull(response.id());
-        assertDoesNotThrow(() -> UUID.fromString(response.id().toString()));
         assertEquals("Test product", response.name());
         assertEquals("Test description", response.description());
         assertEquals(new BigDecimal("10.99"), response.price());
@@ -83,7 +81,7 @@ public class ProductControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldPatchProduct_whenValidRequest() throws Exception {
-        ProductResponse product = createProduct(validCreateProductRequest());
+        ProductResponse product = productApi.createProduct(validCreateProductRequest());
 
         PatchProductRequest request = new PatchProductRequest("Test product 1", null, null, null);
 
@@ -114,7 +112,7 @@ public class ProductControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldReturnBadRequest_whenPatchRequestIsInvalid() throws Exception {
-        ProductResponse createdProduct = createProduct(validCreateProductRequest());
+        ProductResponse createdProduct = productApi.createProduct(validCreateProductRequest());
         String json = """
                 {
                     "stock": -1
@@ -128,7 +126,7 @@ public class ProductControllerIT extends AbstractIntegrationTest {
 
     @Test
     void shouldGetProductById_whenProductExists() throws Exception {
-        ProductResponse product = createProduct(validCreateProductRequest());
+        ProductResponse product = productApi.createProduct(validCreateProductRequest());
         MvcResult result = mockMvc.perform(get("/api/products/{id}", product.id())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -136,11 +134,11 @@ public class ProductControllerIT extends AbstractIntegrationTest {
 
         ProductResponse response = objectMapper.readValue(result.getResponse().getContentAsString(),  ProductResponse.class);
 
-        assertEquals(response.id(), product.id());
-        assertEquals(response.name(), product.name());
-        assertEquals(response.description(), product.description());
-        assertEquals(response.price(), product.price());
-        assertEquals(response.stock(), product.stock());
+        assertEquals(product.id(), response.id());
+        assertEquals(product.name(), response.name());
+        assertEquals(product.description(), response.description());
+        assertEquals(product.price(), response.price());
+        assertEquals(product.stock(), response.stock());
     }
 
     @Test
@@ -168,14 +166,14 @@ public class ProductControllerIT extends AbstractIntegrationTest {
         MvcResult result = mockMvc.perform(get("/api/products")).andExpect(status().isOk()).andReturn();
         PageResponse<ProductResponse> page = objectMapper.readValue(
                 result.getResponse().getContentAsString(),
-                new TypeReference<PageResponse<ProductResponse>>() {}
+                new TypeReference<>() {}
         );
         assertEquals(productsIds.size(), page.content().size());
     }
 
     @Test
     void shouldDeleteProduct_whenProductExists() throws Exception {
-        ProductResponse product = createProduct(validCreateProductRequest());
+        ProductResponse product = productApi.createProduct(validCreateProductRequest());
         mockMvc.perform(delete("/api/products/{id}", product.id()).with(adminUser())).andExpect(status().isNoContent());
         assertFalse(productRepository.existsById(product.id()));
     }
@@ -196,36 +194,9 @@ public class ProductControllerIT extends AbstractIntegrationTest {
     @Test
     void shouldReturnForbidden_whenRegularUserCreatesProduct() throws Exception {
         mockMvc.perform(post("/api/products")
-                        .with(user("USER").authorities(new SimpleGrantedAuthority("USER")))
+                        .with(regularUser())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validCreateProductRequest())))
                 .andExpect(status().isForbidden());
-    }
-
-    private ProductResponse createProduct(CreateProductRequest request) throws Exception {
-        MvcResult result = mockMvc.perform(post("/api/products")
-                        .with(adminUser())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated())
-                .andReturn();
-
-        return objectMapper.readValue(
-                result.getResponse().getContentAsString(),
-                ProductResponse.class
-        );
-    }
-
-    private CreateProductRequest validCreateProductRequest() {
-        return new CreateProductRequest(
-                "Test product",
-                "Test description",
-                new BigDecimal("10.99"),
-                5
-        );
-    }
-
-    private UserRequestPostProcessor adminUser() {
-        return user("admin").authorities(new SimpleGrantedAuthority("ADMIN"));
     }
 }
