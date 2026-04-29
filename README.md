@@ -1,238 +1,300 @@
-# E-Commerce Backend API
+# E-commerce Backend API
 
-A production-minded backend project built with **Spring Boot**, focused on authentication, role-based access control, product management, and order processing.
+Backend REST API for a small e-commerce application.
 
-This project demonstrates a REST API with domain boundaries, JWT-based security, refresh-token flow, database migrations, validation, and consistent error handling.
+The project is built as a portfolio backend application and demonstrates a production-oriented Spring Boot setup: authentication, authorization, PostgreSQL persistence, Flyway migrations, DTO-based API layer, validation, integration tests, Docker Compose, and CI.
 
-## What this project demonstrates
+## Tech Stack
 
-- **Feature-based architecture** with clear separation by domain
-- **JWT authentication** with refresh tokens stored in the database
-- **Role-based authorization** for `USER` and `ADMIN`
-- **Product management API** with pagination and partial updates
-- **Order workflow** with ownership rules and status transitions
-- **Flyway migrations** for database versioning
-- **Global exception handling** with structured API errors
-- **DTO-based API design** instead of exposing entities directly
+- Java 21
+- Spring Boot
+- Spring Security
+- JWT authentication
+- Spring Data JPA
+- PostgreSQL
+- Flyway
+- Gradle
+- Docker / Docker Compose
+- Testcontainers
+- JUnit 5
+- OpenAPI / Swagger UI
+- GitHub Actions CI
 
-## Tech stack
+## Main Features
 
-- **Java 21**
-- **Spring Boot 4**
-- **Spring Security**
-- **Spring Data JPA**
-- **PostgreSQL**
-- **Flyway**
-- **Gradle**
-- **Docker Compose**
-- **Swagger / OpenAPI documentation**
+- User registration and login
+- JWT access and refresh tokens
+- Role-based authorization
+- Product management
+- Order creation and order status updates
+- DTO validation
+- Global exception handling
+- JSON responses for authentication and authorization errors
+- Database migrations with Flyway
+- Integration tests with PostgreSQL Testcontainers
+- Docker Compose setup for local development
 
-## Domain overview
+## Project Structure
 
-### Authentication
-- Register
-- Login
-- Refresh access token using refresh token
-
-### Products
-- List products with pagination
-- Get product by id
-- Create product
-- Update product fields with `PATCH`
-- Delete product
-
-### Orders
-- Create order from product items
-- Get order by id
-- Get paginated orders
-- Cancel own order
-- Update order status as admin
-
-## Access rules
-
-### USER
-- Can browse products
-- Can create orders
-- Can view only their own orders
-- Can cancel their own order when business rules allow it
-
-### ADMIN
-- Full product management
-- Can view all orders
-- Can update order status
-
-## Architecture
-
-The project uses a **feature-based package structure**.
-
-Main domain packages:
-- `auth`
-- `user`
-- `product`
-- `order`
-
-Shared packages:
-- `security` — JWT filters, authentication setup, principals, access rules
-- `common` — shared DTOs, exceptions, pagination, global handlers
-- `config` — application configuration
-- `bootstrap` — development bootstrap data
-
-This structure keeps business logic isolated by domain and scales better than organizing the code only by technical layers.
-
-## Security design
-
-Authentication is based on:
-- short-lived **access token**
-- persistent **refresh token** stored in the database
-
-This allows explicit session renewal and gives the backend control over refresh-token lifecycle.
-
-Protected endpoints use:
-- `Authorization: Bearer <access_token>`
-
-Authorization combines:
-- endpoint-level security rules
-- role checks
-- ownership checks for user-specific resources such as orders
-
-## API documentation
-
-Project documentation includes:
-- `docs/api/endpoints.md` — API overview
-- `docs/api/common-dtos.md` — shared response models
-- `docs/architecture.md` — architecture overview
-- `docs/database.dbml` — database schema overview
-
-Swagger/OpenAPI can be added as the next step to expose the API contract in a fully typed format.
-
-## Example business rules
-
-- A regular user can access only their own orders
-- An admin can access all orders
-- Product stock is validated during order creation
-- Order cancellation is allowed only for specific statuses
-- Order status changes are restricted to privileged users
-
-## Running the project
-
-### Prerequisites
-- JDK 21
-- Docker and Docker Compose
-
-### 1. Start PostgreSQL
-
-```bash
-docker compose up -d
+```text
+.
+├── backend
+│   ├── src/main/java/com/example/backend
+│   │   ├── auth
+│   │   ├── bootstrap
+│   │   ├── common
+│   │   ├── config
+│   │   ├── order
+│   │   ├── product
+│   │   ├── security
+│   │   └── user
+│   ├── src/main/resources/db/migration
+│   └── src/test/java/com/example/backend
+│       ├── integration
+│       ├── testsupport
+│       └── unit
+├── docs
+│   ├── api
+│   ├── architecture.md
+│   └── database.dbml
+├── docker-compose.yml
+└── README.md
 ```
 
-### 2. Configure environment
+## Environment Variables
 
-Create a `.env` file in the backend module or use the existing configuration pattern from the project.
-
-Typical variables:
+Create `.env` in the project root:
 
 ```env
 POSTGRES_DB=shop
 POSTGRES_USER=shop
 POSTGRES_PASSWORD=shop
+
 JWT_SECRET=replace-with-base64-256-bit-secret
 JWT_ACCESS_EXPIRATION=10m
 JWT_REFRESH_EXPIRATION=7d
+
 BOOTSTRAP_ADMIN_EMAIL=admin@example.com
 BOOTSTRAP_ADMIN_PASSWORD=admin123
 ```
 
-### 3. Run the application
+Generate a JWT secret:
+
+```bash
+openssl rand -base64 32
+```
+
+## Running with Docker Compose
+
+From the project root:
+
+```bash
+docker compose up --build
+```
+
+The application will be available at:
+
+```text
+http://localhost:8080
+```
+
+PostgreSQL will be available at:
+
+```text
+localhost:5432
+```
+
+Default database configuration:
+
+```text
+database: shop
+user: shop
+password: shop
+```
+
+## Running Locally Without Docker
+
+Start PostgreSQL manually or through Docker:
+
+```bash
+docker compose up db
+```
+
+Then run the backend:
 
 ```bash
 cd backend
 ./gradlew bootRun
 ```
 
-The API will be available at:
+On Windows:
+
+```bash
+cd backend
+gradlew.bat bootRun
+```
+
+## API Documentation
+
+Swagger UI is available after the application starts:
 
 ```text
-http://localhost:8080/api
+http://localhost:8080/swagger-ui/index.html
 ```
 
-## Example endpoints
+OpenAPI JSON:
 
-### Auth
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `POST /api/auth/refresh`
-
-### Products
-- `GET /api/products?page=0&size=10`
-- `GET /api/products/{id}`
-- `POST /api/products`
-- `PATCH /api/products/{id}`
-- `DELETE /api/products/{id}`
-
-### Orders
-- `GET /api/orders?page=0&size=10`
-- `GET /api/orders/{id}`
-- `POST /api/orders`
-- `PATCH /api/orders/status/{id}`
-- `PATCH /api/orders/{id}/cancel`
-
-## Example request
-
-```json
-{
-  "items": [
-    {
-      "productId": "2c2cfb35-1e8e-4c16-a580-b67b0f7ccdb6",
-      "quantity": 2
-    }
-  ]
-}
+```text
+http://localhost:8080/v3/api-docs
 ```
 
-## Example response
+Additional API documentation is available in:
 
-```json
-{
-  "id": "1f2f9850-5a5d-4302-a3f3-bf1f9a0fbd11",
-  "items": [
-    {
-      "id": 1,
-      "product": {
-        "id": "2c2cfb35-1e8e-4c16-a580-b67b0f7ccdb6",
-        "name": "Mechanical Keyboard",
-        "description": "TKL mechanical keyboard",
-        "price": 299.99,
-        "stock": 8
-      },
-      "quantity": 2,
-      "priceAtPurchase": 299.99
-    }
-  ],
-  "status": "CREATED",
-  "totalPrice": 599.98,
-  "createdAt": "2026-04-21T18:30:00Z"
-}
+```text
+docs/api/endpoints.md
+docs/api/common-dtos.md
 ```
 
-## Database
+## Database Migrations
 
-The database schema is managed with **Flyway migrations**.
+Flyway migrations are stored in:
 
-Main tables include:
-- `users`
-- `roles`
-- `user_roles`
-- `products`
-- `orders`
-- `order_items`
-- `refresh_tokens`
+```text
+backend/src/main/resources/db/migration
+```
 
-A DBML representation is also included for easier schema review.
+Current migration:
 
-## Future updates
+```text
+V1__init.sql
+```
 
-Planned improvements that would strengthen the project further:
-- automated tests for controllers and services
-- containerized app runtime for one-command startup
-- CI pipeline for build and test automation
-- additional business flows such as categories or payment integration
+Flyway runs migrations on application startup.
+
+## Tests
+
+Run all tests:
+
+```bash
+cd backend
+./gradlew test
+```
+
+The project contains integration tests for API/database flows, including:
+
+```text
+ProductControllerIT
+OrderControllerIT
+```
+
+Integration tests use Testcontainers with PostgreSQL.
+
+## CI
+
+GitHub Actions runs backend tests on push and pull request.
+
+Workflow file:
+
+```text
+.github/workflows/backend-ci.yml
+```
+
+## Useful Commands
+
+Build the backend:
+
+```bash
+cd backend
+./gradlew build
+```
+
+Run tests:
+
+```bash
+cd backend
+./gradlew test
+```
+
+Build Docker image through Compose:
+
+```bash
+docker compose build backend
+```
+
+Start the full stack:
+
+```bash
+docker compose up --build
+```
+
+Stop containers:
+
+```bash
+docker compose down
+```
+
+Remove containers and database volume:
+
+```bash
+docker compose down -v
+```
+
+## API Overview
+
+Main resource groups:
+
+- Auth API
+- Product API
+- Order API
+
+Typical auth flow:
+
+1. Register user
+2. Login
+3. Use access token as Bearer token
+4. Refresh token when access token expires
+
+Example Authorization header:
+
+```text
+Authorization: Bearer <access-token>
+```
+
+## Documentation
+
+Architecture notes:
+
+```text
+docs/architecture.md
+```
+
+Database model:
+
+```text
+docs/database.dbml
+```
+
+API endpoints:
+
+```text
+docs/api/endpoints.md
+```
+
+Common DTOs:
+
+```text
+docs/api/common-dtos.md
+```
+
+## What This Project Demonstrates
+
+- Building REST APIs with Spring Boot
+- Separating controllers, services, repositories, DTOs, and mappers
+- Secure authentication with JWT
+- Role-based access control with Spring Security
+- PostgreSQL persistence with JPA
+- Schema versioning with Flyway
+- Integration testing with Testcontainers
+- Dockerized local development
+- CI with GitHub Actions
+- Clear project documentation
