@@ -6,10 +6,6 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
 public final class SecurityTestUtils {
-
-    private SecurityTestUtils() {
-    }
-
     public static UserRequestPostProcessor adminUser() {
         return user("admin").authorities(new SimpleGrantedAuthority("ADMIN"));
     }

@@ -6,7 +6,7 @@ import com.example.backend.product.ProductRepository;
 import com.example.backend.product.dto.request.CreateProductRequest;
 import com.example.backend.product.dto.request.PatchProductRequest;
 import com.example.backend.product.dto.response.ProductResponse;
-import com.example.backend.testsupport.ProductApiTestClient;
+import com.example.backend.testsupport.EcommerceTestClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,11 +38,11 @@ public class ProductControllerIT extends AbstractIntegrationTest {
     @Autowired
     private ProductRepository productRepository;
 
-    private ProductApiTestClient productApi;
+    private EcommerceTestClient productApi;
 
     @BeforeEach
     void setUp() {
-        productApi = new ProductApiTestClient(mockMvc, objectMapper);
+        productApi = new EcommerceTestClient(mockMvc, objectMapper);
     }
 
     @Test

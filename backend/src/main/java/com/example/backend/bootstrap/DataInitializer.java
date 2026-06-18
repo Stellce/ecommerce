@@ -20,10 +20,10 @@ public class DataInitializer implements CommandLineRunner {
     private final RoleRepository roleRepository;
     private final BCryptPasswordEncoder encoder;
 
-    @Value("${app.bootstrap-admin.email}")
+    @Value("${app.bootstrap-admin.email:}")
     private String adminEmail;
 
-    @Value("${app.bootstrap-admin.password}")
+    @Value("${app.bootstrap-admin.password:}")
     private String adminPassword;
 
     @Override

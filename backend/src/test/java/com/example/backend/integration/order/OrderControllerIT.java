@@ -8,9 +8,7 @@ import com.example.backend.order.OrderStatus;
 import com.example.backend.order.dto.request.CreateOrderRequest;
 import com.example.backend.order.dto.request.PatchOrderStatusRequest;
 import com.example.backend.order.dto.response.OrderResponse;
-import com.example.backend.order.item.dto.request.OrderItemRequest;
-import com.example.backend.product.dto.response.ProductResponse;
-import com.example.backend.testsupport.ProductApiTestClient;
+import com.example.backend.testsupport.EcommerceTestClient;
 import com.example.backend.user.Role;
 import com.example.backend.user.RoleRepository;
 import com.example.backend.user.User;
@@ -24,10 +22,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import tools.jackson.databind.ObjectMapper;
 
-import java.util.List;
 import java.util.Set;
 
-import static com.example.backend.testsupport.ProductTestData.validCreateProductRequest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -54,14 +50,14 @@ public class OrderControllerIT extends AbstractIntegrationTest {
     @Autowired
     private UserRepository userRepository;
 
-    private ProductApiTestClient productApi;
+    private EcommerceTestClient api;
 
     private String userJwt;
     private String adminJwt;
 
     @BeforeEach
     void setUp() throws Exception {
-        productApi = new ProductApiTestClient(mockMvc, objectMapper);
+        api = new EcommerceTestClient(mockMvc, objectMapper);
 
         createUsersIfMissing();
         userJwt = getUserJwt();
@@ -70,12 +66,12 @@ public class OrderControllerIT extends AbstractIntegrationTest {
 
     @Test
     void createOrder_whenValidRequest() throws Exception {
-        createOrder(validCreateOrderRequest());
+        createOrder(api.validCreateOrderRequest());
     }
 
     @Test
     void patchOrderStatus_whenValidRequest() throws Exception {
-        OrderResponse order = createOrder(validCreateOrderRequest());
+        OrderResponse order = createOrder(api.validCreateOrderRequest());
         PatchOrderStatusRequest request = new PatchOrderStatusRequest(OrderStatus.PAID);
 
         mockMvc.perform(patch("/api/orders/status/{id}", order.id())
@@ -88,7 +84,7 @@ public class OrderControllerIT extends AbstractIntegrationTest {
 
     @Test
     void cancelOrder_whenValidRequest() throws Exception {
-        OrderResponse order = createOrder(validCreateOrderRequest());
+        OrderResponse order = createOrder(api.validCreateOrderRequest());
 
         mockMvc.perform(patch("/api/orders/{id}/cancel", order.id())
                         .header("Authorization", "Bearer " + userJwt))
@@ -109,16 +105,6 @@ public class OrderControllerIT extends AbstractIntegrationTest {
                 result.getResponse().getContentAsString(),
                 OrderResponse.class
         );
-    }
-
-    private CreateOrderRequest validCreateOrderRequest() throws Exception {
-        List<OrderItemRequest> orderItemRequestList = List.of(validOrderItemRequest());
-        return new CreateOrderRequest(orderItemRequestList);
-    }
-
-    private OrderItemRequest validOrderItemRequest() throws Exception {
-        ProductResponse product = productApi.createProduct(validCreateProductRequest());
-        return new OrderItemRequest(product.id(), 1);
     }
 
     private void createUsersIfMissing() {

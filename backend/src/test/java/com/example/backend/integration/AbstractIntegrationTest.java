@@ -38,7 +38,9 @@ public abstract class AbstractIntegrationTest {
                     order_items,
                     orders,
                     products,
-                    refresh_tokens
+                    refresh_tokens,
+                    users,
+                    user_roles
                 RESTART IDENTITY CASCADE
                 """);
     }
