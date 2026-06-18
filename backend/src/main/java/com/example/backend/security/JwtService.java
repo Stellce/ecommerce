@@ -7,7 +7,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -21,11 +20,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
-@RequiredArgsConstructor
 @Service
 public class JwtService {
 
     private final JwtProperties jwtProperties;
+    private final SecretKey secretKey;
+
+    public JwtService(JwtProperties jwtProperties) {
+        this.jwtProperties = jwtProperties;
+        this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtProperties.secret()));
+    }
 
     public String generateToken(User user) {
         return Jwts.builder()
@@ -36,13 +40,13 @@ public class JwtService {
                         .toList())
                 .issuedAt(Date.from(Instant.now()))
                 .expiration(Date.from(Instant.now().plus(jwtProperties.accessExpiration())))
-                .signWith(getKey())
+                .signWith(secretKey)
                 .compact();
     }
 
     public Claims parseToken(String token) {
         return Jwts.parser()
-                .verifyWith(getKey())
+                .verifyWith(secretKey)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
@@ -67,8 +71,4 @@ public class JwtService {
                 authorities
         );
     }
-
-    private SecretKey getKey() {
-            return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtProperties.secret()));
-        }
 }
