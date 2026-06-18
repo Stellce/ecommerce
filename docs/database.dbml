@@ -18,9 +18,9 @@ Table user_roles {
 
 Table refresh_tokens {
   id bigint [primary key]
-  user_id uuid [not null, ref: = users.id]
+  user_id uuid [not null, ref: > users.id]
   token varchar [unique, not null]
-  created_at timestamptz [default: now(), not null]
+  created_at timestamptz [default: `NOW()`, not null]
   expires_at timestamptz [not null]
   revoked boolean [default: false, not null]
 }
@@ -30,7 +30,7 @@ Table products {
   name varchar [not null]
   description varchar [not null]
   price numeric(10,2) [not null]
-  stock integer [not null, check: stock >= 0]
+  stock integer [not null, check: `stock >= 0`]
 }
 
 Table orders {
@@ -47,7 +47,10 @@ Table order_items {
   product_id uuid [ref: > products.id, not null]
   quantity integer [not null]
   price_at_purchase numeric(10,2) [not null]
-  unique(order_id, product_id)
+
+  indexes {
+    (order_id, product_id) [unique]
+  }
 }
 
 Enum order_status {
