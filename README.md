@@ -1,4 +1,5 @@
 # E-commerce Backend API
+[![Backend CI](https://github.com/Stellce/ecommerce/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/Stellce/ecommerce/actions/workflows/backend-ci.yml)
 
 Backend REST API for a small e-commerce application.
 
@@ -180,13 +181,13 @@ cd backend
 ./gradlew test
 ```
 
-The project contains integration tests for API/database flows, including:
+The project contains integration tests for API/database/security flows, including:
 
-```text
-ProductControllerIT
-OrderControllerIT
-```
+- AuthControllerIT
+- ProductControllerIT
+- OrderControllerIT
 
+Covered scenarios include registration, login, JWT-protected endpoints, invalid/tampered JWT handling, role-based access, product management and order flows.
 Integration tests use Testcontainers with PostgreSQL.
 
 ## CI
@@ -260,6 +261,60 @@ Example Authorization header:
 Authorization: Bearer <access-token>
 ```
 
+## Example Requests
+
+Register a user:
+
+```bash
+curl -X POST http://localhost:8080/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "password123"
+  }'
+```
+
+Login:
+
+```bash
+  curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "password123"
+  }'
+```
+
+Create a product as admin:
+
+```bash
+curl -X POST http://localhost:8080/api/products \
+  -H "Authorization: Bearer <admin-access-token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Keyboard",
+    "description": "Mechanical keyboard",
+    "price": 199.99,
+    "stock": 10
+  }'
+```
+
+Create an order:
+
+```bash
+curl -X POST http://localhost:8080/api/orders \
+  -H "Authorization: Bearer <user-access-token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "items": [
+      {
+        "productId": "<product-id>",
+        "quantity": 2
+      }
+    ]
+  }'
+```
+
 ## Documentation
 
 Architecture notes:
@@ -298,3 +353,5 @@ docs/api/common-dtos.md
 - Dockerized local development
 - CI with GitHub Actions
 - Clear project documentation
+- Security-focused integration testing for JWT and protected endpoints
+- Clean test isolation with PostgreSQL Testcontainers
