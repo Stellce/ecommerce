@@ -1,4 +1,5 @@
 # E-commerce Backend API
+
 [![Backend CI](https://github.com/Stellce/ecommerce/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/Stellce/ecommerce/actions/workflows/backend-ci.yml)
 
 Backend REST API for a small e-commerce application.
@@ -34,6 +35,21 @@ The project is built as a portfolio backend application and demonstrates a produ
 - Database migrations with Flyway
 - Integration tests with PostgreSQL Testcontainers
 - Docker Compose setup for local development
+
+## API documentation screenshots
+
+The API is documented with Swagger / OpenAPI and includes the main e-commerce modules such as authentication, product management and order processing.
+
+![Swagger API documentation overview](docs/images/swagger-overview.jpeg)
+
+Example product endpoint with filtering, pagination and response schema:
+
+![Product API endpoint with filtering and pagination](docs/images/products-endpoint.jpeg)
+
+Example order endpoint for the e-commerce order flow:
+
+![Order API endpoint and order workflow](docs/images/orders-endpoint.jpeg)
+
 
 ## Project Structure
 
@@ -191,6 +207,10 @@ Covered scenarios include registration, login, JWT-protected endpoints, invalid/
 Integration tests use Testcontainers with PostgreSQL.
 
 ## CI
+
+The project includes automated tests and a GitHub Actions workflow for checking the application on repository changes.
+
+![GitHub Actions workflow runs](docs/images/github-actions.png)
 
 GitHub Actions runs backend tests on push and pull request.
 

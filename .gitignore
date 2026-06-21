@@ -1,2 +1,9 @@
+### IntelliJ IDEA ###
 .idea/
+
+### VS Code ###
+.vs/
+.vscode/
+
+### Environment variables ###
 .env
